@@ -254,9 +254,12 @@ func (c *consulACLsAPI) CreateToken(ctx context.Context, sii ServiceIdentityInde
 
 	// todo: rate limiting
 
+	// the token created must be for the service, not the sidecar of the service
+	// https://www.consul.io/docs/acl/acl-system.html#acl-service-identities
+	serviceName := strings.TrimPrefix(sii.TaskName, structs.ConnectProxyPrefix+"-")
 	partial := &api.ACLToken{
 		Description:       sii.Description(),
-		ServiceIdentities: []*api.ACLServiceIdentity{{ServiceName: sii.TaskName}},
+		ServiceIdentities: []*api.ACLServiceIdentity{{ServiceName: serviceName}},
 	}
 
 	token, _, err := c.aclClient.TokenCreate(partial, nil)
