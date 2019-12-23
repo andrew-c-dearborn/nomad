@@ -1749,7 +1749,7 @@ func (n *Node) DeriveSIToken(args *structs.DeriveSITokenRequest, reply *structs.
 		g.Go(func() error {
 			for {
 				select {
-				case taskName, ok := <-input:
+				case task, ok := <-input:
 					if !ok {
 						return nil
 					}
@@ -1757,13 +1757,13 @@ func (n *Node) DeriveSIToken(args *structs.DeriveSITokenRequest, reply *structs.
 					sii := ServiceIdentityIndex{
 						ClusterID: clusterID,
 						AllocID:   alloc.ID,
-						TaskName:  taskName,
+						TaskName:  task,
 					}
 					secret, err := n.srv.consulACLs.CreateToken(ctx, sii)
 					if err != nil {
 						return err
 					}
-					results[taskName] = secret
+					results[task] = secret
 				case <-ctx.Done():
 					return nil
 				}
